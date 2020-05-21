@@ -37,8 +37,7 @@ def exclude(dta, y, min_r):
 def combo_dets(dta, indeps_, m):
     """Returns a list of all possible variables and from length k to the minimum length 
     specified (m). Each list item has a corresponding correlation matrix determinant value"""
-    
-    
+   
     combs = []
     for length in range(m, len(indeps_)+1):
         C = combinations(indeps_, length)
