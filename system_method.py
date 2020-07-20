@@ -126,7 +126,7 @@ def main(dep, min_vars, dep_corr, f_name):
     min_corr_combos = system(indeps, combos, min_vars, show=False)
     
     # The lower the (root) mean squared correlation, the less average correlation
-    [print(rank, i) for rank,i in zip(range(1,4), min_corr_combos[:3])] # top 3 combinations with lowest mean 
+    [print(rank, i) for rank, i in zip(range(1,4), min_corr_combos[:3])] # top 3 combinations with lowest mean 
 
 
 if __name__ == '__main__':
