@@ -58,6 +58,14 @@ def mean_sq(X):
     return math.sqrt(avg)
 
 
+def weight_comb(X):
+    """Returns weighted means of the squared correlations"""
+
+    x = np.array([edge[2]['weight']**2 for edge in X.edges(data=True)])
+    weights = np.array([i/np.sum(x) for i in x])
+    return weights.dot(x)
+
+
 def system(indeps_, combos_, m, show=False):
     """Creates a graph with nodes as variables and edges as pair-wise correlation. 
     Determines the subgraph with the least mean squared correlation and returns a list
@@ -78,8 +86,9 @@ def system(indeps_, combos_, m, show=False):
     avgList = []
     for comb in combs:
         S = G.subgraph(list(comb))
-        avg = mean_sq(S)
-        avgList.append( (round(avg,5),comb) )
+        # avg = mean_sq(S)
+        avg = weight_comb(S)
+        avgList.append( (round(avg,5), comb) )
         
     avgList_s = sorted(avgList, key=lambda x: x[0])    
 
