@@ -49,7 +49,7 @@ def combo_dets(dta, indeps_, m):
         sub = pd.DataFrame({i:dta[i] for i in comb})
         r_mat = np.array(sub.corr())
         r_det = np.linalg.det(r_mat)
-        detList.append( (round(r_det,5),comb) )
+        detList.append( (round(r_det,5), comb) )
 
     return sorted(detList, key=lambda x: x[0], reverse=True)    
 
