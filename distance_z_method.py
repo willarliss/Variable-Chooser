@@ -1,5 +1,4 @@
 import os
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
@@ -67,7 +66,8 @@ class VariableChooser:
             # Apply penalty equal to len(indep_vars)-len(combo)+1
             # Subtract r from 1 to turn maximization to minimization
             if len_penalty:
-                return 1 - r / (len(self.indep_vars) - len(combo) + 1)
+                p = r / (len(self.indep_vars)-len(combo)+1)
+                return 1 - (r - p)
             # Subtract r from 1 to turn maximization to minimization
             else:
                 return 1 - r        
@@ -100,7 +100,8 @@ class VariableChooser:
             # Apply penalty equal to len(indep_vars)-len(combo)+1
             # Subtract r from 1 to turn maximization to minimization
             if len_penalty:
-                return r / (len(self.indep_vars) - len(combo) + 1)
+                p = r / (len(self.indep_vars)-len(combo)+1)
+                return r - p
             # Subtract r from 1 to turn maximization to minimization
             else:
                 return r
