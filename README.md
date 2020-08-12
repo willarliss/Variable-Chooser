@@ -7,7 +7,7 @@ The class "Variable Chooser" accepts a list of independent variables, a dependen
 
 Aggregated coefficients for the correlation between each variable in a subset and the dependent variable are calculated in the same way. The goal is now to find a subset/combination that simultaneously has the lowest coefficient of aggregated correlation for each pair in the subset as well as the highest coefficient of aggregated correlation for each variable in the subset with the dependent variable. This is found by first changing the later maximization into a minimization by simply subtracting each coefficient from 1. A minimum for these two criteria can be found by calculating the euclidian distance of each combination from 0 (the lowest possible coefficient possible for either set of coefficients). 
 
-! [] (/example.png)
+![](/example.png)
 
 The problem is demonstrated graphically below. Each point in the plot represents a subset/combination of variables. The points closest the the origin are those which satisfy the criteria described above.
 
