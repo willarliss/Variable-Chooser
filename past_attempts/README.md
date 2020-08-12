@@ -1,5 +1,6 @@
 # Variable-Chooser
-*These attempts do not hold validity*  
+*These attempts do not hold validity*
+
 This project aims to minimize risk of multicollinearity in a set of independent variables for regression analysis.
 
 This project tackles the problem of multicollinearity in regression analysis. The purpose is to identify a subset of variables from a large list of independent variables that can be used in regression analysis to minimize the chance of multicollinearity causing a problem. Two solutions are suggested: one in which the mean squared pair-wise correlation of each subset of variables is minimized in a network graph (see system_method.py) and one in which the correlation matrix determinant for each subset of variables is maximized (see m_det_method.py). Both of these solutions assume the Pearson correlation coefficient to be the best indicator of collinearity between two variables. Looking at mean squared pair-wise correlation shows the average degree of pairwise correlations in a set of variables. Looking at the correlation matrix determinants (preferred method) provides an inverse volumentric measure of correlation within a set of variables. The logic behind this method is motivated by the following discussion board: https://stats.stackexchange.com/questions/284861/do-the-determinants-of-covariance-and-correlation-matrices-and-or-their-inverses. 
