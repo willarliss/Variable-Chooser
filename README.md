@@ -9,5 +9,5 @@ Aggregated coefficients for the correlation between each variable in a subset an
 
 ![](/example.png)
 
-The problem is demonstrated graphically below. Each point in the plot represents a subset/combination of variables. The points closest the the origin are those which satisfy the criteria described above.
+The problem is demonstrated graphically below. Each point in the plot represents a subset/combination of variables. The points closest to the origin are those which satisfy the criteria described above.
 
