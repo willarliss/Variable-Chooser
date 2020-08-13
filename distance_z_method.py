@@ -21,7 +21,6 @@ class VariableChooser:
         self.fisher = lambda r: np.arctanh(np.abs(r))
         self.fisher_rev = lambda z: (np.exp(2*z)-1) / (np.exp(2*z)+1)
 
-    
     def correlations(self, minimum=2, method='weight', len_penalty=False):
         '''Aggregate correlations between each variable in a subset of independent 
         variables. Aggregate correlations between each independent variable and the
