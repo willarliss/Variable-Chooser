@@ -143,6 +143,7 @@ class VariableChooser:
 
                 all_distances[combo] = distance
                 
+        # Return all combinations up to a set number
         return list(all_distances.items())[:lim]
 
 
