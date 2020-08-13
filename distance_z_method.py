@@ -46,9 +46,9 @@ class VariableChooser:
             
             # Calculate the correlation of every sub-combination
             r_dep = np.array([
-                self.r(self.data[self.dep_var], self.data[self.indep_vars[i]])
-                for i in np.arange(len(combo))
-                ])
+                self.r(self.data[self.dep_var], self.data[var]) for var in combo
+                ]) 
+            
             # Apply Fisher's z Transformation
             r_dep = self.fisher(r_dep)
             
@@ -70,7 +70,8 @@ class VariableChooser:
                 return 1 - (r - p)
             # Subtract r from 1 to turn maximization to minimization
             else:
-                return 1 - r        
+                return 1 - r   
+            
         ###
         
         def corr_in_indeps(combo):
@@ -83,6 +84,7 @@ class VariableChooser:
             r_indep = np.array([ 
                 self.r(self.data[c[0]], self.data[c[1]]) for c in list(combinations(combo,2)) 
                 ])
+            
             # Apply Fisher's z Transformation            
             r_indep = self.fisher(r_indep)
             
@@ -148,9 +150,9 @@ class VariableChooser:
                           
         # Plot:
         fig, ax = plt.subplots(figsize=(7,6))
-        ax.plot(indep_corr, dep_corr, 'b.', alpha=0.8)   
+        ax.plot(indep_corr, dep_corr, 'b.', alpha=0.5)   
         # Add "tolerance circle"          
-        ax.add_patch(plt.Circle([0,0], tol, color='r', alpha=0.2))
+        ax.add_patch(plt.Circle([0,0], tol, color='r', alpha=0.5))
         
         # Customizes axes
         ax.set_xlim([0,1]) 
@@ -173,7 +175,7 @@ class VariableChooser:
             y = self.dep_corr[combo]
             
             # Calculate each point's distance from the origin and add to dictionary
-            distance = ((0-x)**2 + (0-y)**2)**0.5
+            distance = ( (0-x)**2 + (0-y)**2 ) ** 0.5
             distances[combo] = distance
 
         # Sort the dictionary from least to greatest
@@ -216,7 +218,7 @@ class VariableChooser:
 def test():    
     
     # Generate synthetic data
-    np.random.seed(None) 
+    np.random.seed(3) 
     df = pd.DataFrame(np.random.randint(1,9, 100), columns=['a'])
     df['b'] = df['a'] + np.random.randn(100)
     df['c'] = df['b'] + np.random.randn(100)
@@ -229,15 +231,19 @@ def test():
     
     vc = VariableChooser(df, ['b','c','d','f','g','h'], 'e')
     
-    indep, dep = vc.correlations()
+    indep, dep = vc.correlations(method='weight', minimum=2, len_penalty=True)
     solution = vc.solve()
     
-    for i in solution[:20]:
-        print(i)
+    n = 5
+    for i in np.arange(n):
+        combo = list(solution[i][1][0])    
+        print(solution[i]) # rank, combo, distance
+        print('-'*22)
+        print(df[combo].corr()) # correl of combination
+        print(1-vc.dep_corr[tuple(combo)]) # Agg corr to dep var
+        print()
     
-    print(vc.total_combos())
-        
-    vc.plot()
+    vc.plot(tol=0.689)
     
     
   
