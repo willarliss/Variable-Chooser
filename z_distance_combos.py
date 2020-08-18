@@ -1,3 +1,4 @@
+import os
 import sys
 import numpy as np
 import pandas as pd
@@ -10,10 +11,6 @@ def z_distance(data, combo, dep):
     
     # Calculate Pearson correlation coefficient
     r = lambda x,y: pearsonr(x,y)[0] 
-    # Apply Fisher's z transformation from |r| to z
-    fisher =  lambda r: np.arctanh(np.abs(r))
-    # Reverse transformation from z to r
-    fisher_rev = lambda z: np.tanh(z)
     
     # Find every pairwise correlation within set
     r_indep = np.array([
@@ -26,24 +23,19 @@ def z_distance(data, combo, dep):
         ])
     
     # Apply Fisher's z transformation to all correlations
-    r_indep = fisher(r_indep)
-    r_dep = fisher(r_dep)
+    r_dep = np.arctanh(1-np.abs(r_dep))
+    r_indep = np.arctanh(np.abs(r_indep))
     
     # Calculate weighted average with weights determined by variables contribution to sum
-    # Reverse transform back to correlation coefficient
-    corr_in_indeps = fisher_rev(
-        np.dot(r_indep, [r/sum(r_indep) for r in r_indep])
-        )
+    corr_in_indeps = np.dot(r_indep, [r/sum(r_indep) for r in r_indep])
+        
     # Calculate weighted average with weights determined by variables contribution to sum
-    # Reverse transform back to correlation coefficient        
-    corr_to_dep = fisher_rev(
-        np.dot(r_dep, [r/sum(r_dep) for r in r_dep])
-        )
+    corr_to_dep = np.dot(r_dep, [r/sum(r_dep) for r in r_dep])
 
     # Calculate Euclidian distance from the point where:
     # correlation within independent variables is minimized (0)
-    # correlation with dependent variable is maximized (1)
-    distance = ( (0-corr_in_indeps)**2 + (1-corr_to_dep)**2 ) ** 0.5
+    # 1 - correlation to dependent variable is minimized (0)
+    distance = (corr_in_indeps**2 + corr_to_dep**2) ** 0.5
     
     return distance
 
@@ -70,7 +62,7 @@ class VariableChooser:
         self.data = data # Should be pandas DataFrame
         self.dep_var = dep_var
     
-    def select_combo(self, indep_vars, minimum=2, len_penalty=False):
+    def select_combo(self, indep_vars, minimum=3, len_penalty=False):
         
         assert len(indep_vars) >= 2
         assert minimum <= len(indep_vars)
@@ -92,7 +84,7 @@ class VariableChooser:
                 
                 # Add larger penalty to combinations of shorter length
                 if len_penalty:
-                    distance += 1 / (len(combo)*len(self.indep_vars))
+                    distance += (len(indep_vars)-len(combo)+1) / (len(indep_vars)*len(combo))
                 
                 # Only add combo to memory if smaller than q1 of memory
                 if len(distances) > 3:
@@ -117,7 +109,7 @@ class VariableChooser:
             self.min,
             )  
     
-    def all_combos(self, indep_vars, minimum=2, len_penalty=True, lim=None):
+    def all_combos(self, indep_vars, minimum=3, len_penalty=True, lim=None):
         
         assert len(indep_vars) >= 2
         assert minimum <= len(indep_vars)
@@ -139,11 +131,10 @@ class VariableChooser:
                 
                 # Add larger penalty to combinations of shorter length
                 if len_penalty:
-                    distance += 1 / (len(combo)*len(indep_vars))
+                    distance += (len(indep_vars)-len(combo)+1) / (len(indep_vars)*len(combo))
 
                 all_distances[combo] = distance
                 
-        # Return all combinations up to a set number
         return list(all_distances.items())[:lim]
 
 
