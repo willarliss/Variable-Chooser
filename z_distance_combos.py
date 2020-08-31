@@ -33,7 +33,7 @@ def z_distance(data, combo, dep):
     # Calculate Euclidian distance from the point where:
     # correlation within independent variables is minimized (0)
     # 1 - correlation to dependent variable is minimized (0)
-    distance = (corr_in_indeps**2 + corr_to_dep**2) ** 0.5
+    distance = np.sqrt(corr_in_indeps**2 + corr_to_dep**2)
     
     return distance
 
