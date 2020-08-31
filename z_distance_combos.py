@@ -23,12 +23,12 @@ def z_distance(data, combo, dep):
         ])
     
     # Apply Fisher's z transformation to all correlations
-    r_dep = np.arctanh(1-np.abs(r_dep))
-    r_indep = np.arctanh(np.abs(r_indep))
+    z_dep = np.arctanh(1-np.abs(r_dep))
+    z_indep = np.arctanh(np.abs(r_indep))
     
     # Calculate weighted average with weights determined by variables contribution to sum
-    corr_in_indeps = np.dot(r_indep, [r/sum(r_indep) for r in r_indep])
-    corr_to_dep = np.dot(r_dep, [r/sum(r_dep) for r in r_dep])
+    corr_in_indeps = np.dot(z_indep, [z/sum(z_indep) for z in z_indep])
+    corr_to_dep = np.dot(z_dep, [z/sum(z_dep) for z in z_dep])
 
     # Calculate Euclidian distance from the point where:
     # correlation within independent variables is minimized (0)
