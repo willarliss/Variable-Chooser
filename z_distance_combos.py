@@ -106,7 +106,7 @@ class VariableChooser:
     def total_combos(self):
         
         return total_combos(
-            len(self.indep_vars), 
+            self.max, 
             self.min,
             )  
     
