@@ -98,7 +98,7 @@ class VariableChooser:
             )
         
         # Return combo with shortest distance
-        return self.solutions[0]
+        return self.solutions[0][0]
     
     def total_combos(self):
         
