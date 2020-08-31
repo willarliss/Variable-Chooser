@@ -33,7 +33,7 @@ def z_distance(data, combo, dep):
     # Calculate Euclidian distance from the point where:
     # correlation within independent variables is minimized (0)
     # 1 - correlation to dependent variable is minimized (0)
-    distance = np.sqrt(corr_in_indeps**2 + corr_to_dep**2)
+    distance = np.sqrt(corr_in_indeps**2 + corr_to_dep**2) 
     
     return distance
 
@@ -60,18 +60,21 @@ class VariableChooser:
         self.data = data # Should be pandas DataFrame
         self.dep_var = dep_var
     
-    def select_combo(self, indep_vars, minimum=3, len_penalty=False):
+    def select_combo(self, indep_vars, minimum=3, maximum=None, len_penalty=False):
         
-        assert len(indep_vars) >= 2
-        assert minimum <= len(indep_vars)
-           
+        if maximum is None:
+            self.max = len(indep_vars)
+        else:
+            self.max = maximum
+        self.min = minimum
+        
         self.len_penalty = len_penalty 
         self.indep_vars = indep_vars
         self.min = minimum  
         distances = {}         
         
         # Create combinations of every length from minimum to number of indep vars
-        for length in np.arange(self.min, len(self.indep_vars)+1):
+        for length in np.arange(self.min, self.max+1):
             C = combinations(self.indep_vars, length)
 
             # Iterate over every column created
@@ -107,18 +110,18 @@ class VariableChooser:
             self.min,
             )  
     
-    def all_combos(self, indep_vars, minimum=3, len_penalty=True, lim=None):
-        
-        assert len(indep_vars) >= 2
-        assert minimum <= len(indep_vars)
+    def all_combos(self, indep_vars, minimum=3, maximum=None, len_penalty=True, lim=None):
            
+        if maximum is None:
+            maximum = len(indep_vars)
+        
         # Nothing in this method will be saved to object memory
         data = self.data.copy(deep=True)
         dep_var = self.dep_var
         all_distances = {}         
         
         # Create combinations of every length from minimum to number of indep vars
-        for length in np.arange(minimum, len(indep_vars)+1):
+        for length in np.arange(minimum, maximum+1):
             C = combinations(indep_vars, length)
 
             # Iterate over every column created
