@@ -10,16 +10,16 @@ from itertools import combinations
 def z_distance(data, combo, dep):
     
     # Calculate Pearson correlation coefficient
-    r = lambda x,y: pearsonr(x,y)[0] 
+    corr = lambda x,y: pearsonr(x,y)[0] 
     
     # Find every pairwise correlation within set
     r_indep = np.array([
-        r(data[c[0]], data[c[1]]) for c in list(combinations(combo,2))
+        corr(data[c[0]], data[c[1]]) for c in list(combinations(combo,2))
         ])
     
     # Find correlation with dependent variable for every variable in set
     r_dep = np.array([
-        r(data[dep], data[var]) for var in combo
+        corr(data[dep], data[var]) for var in combo
         ])
     
     # Apply Fisher's z transformation to all correlations
@@ -28,8 +28,6 @@ def z_distance(data, combo, dep):
     
     # Calculate weighted average with weights determined by variables contribution to sum
     corr_in_indeps = np.dot(r_indep, [r/sum(r_indep) for r in r_indep])
-        
-    # Calculate weighted average with weights determined by variables contribution to sum
     corr_to_dep = np.dot(r_dep, [r/sum(r_dep) for r in r_dep])
 
     # Calculate Euclidian distance from the point where:
