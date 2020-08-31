@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.datasets import load_boston
-from z_distance_combos import VariableChooser, z_distance, total_combos
+from z_distance_combos import VariableChooser, z_distance
 
 boston = load_boston()
 df = pd.DataFrame(boston.data, columns=[list(boston.feature_names)])
