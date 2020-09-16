@@ -1,7 +1,7 @@
 # z-Distance
 This project aims to reduce the risk of multicollinearity in a subset of independent variables for regression analysis. The purpose is to identify a subset of variables from a large list of independent variables that can be used in regression analysis to reduce the chance of multicollinearity causing a problem. Provided is a class that automates this task. The problem is formulated as:
 
-![formal](assets/formal.JPG)
+![formal](assets/formal1.JPG)
 
 The function z_distance accepts a dataframe, a list of independent variables, and a dependent variables. The algorithm first creates subsets from the list of independent variables. The subsets consist of every combination from the list of independent variables, ranging in length from k (the number of independent variabes passed to the class) and the minimum combination length passed to the class. Once combinations are made, pearson correlation coefficients are calculated for every pair of variables within each subset/combination. Fisher's z Transformation is applied to the absolute value of each of these coefficients, they are then aggregated by either taking their weighted mean. Aggregated coefficients for the correlation between each variable in a subset and the dependent variable are calculated in the same way. 
 
