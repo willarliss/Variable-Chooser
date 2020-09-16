@@ -7,4 +7,4 @@ The function z_distance accepts a dataframe, a list of independent variables, an
 
 The goal is now to find a subset/combination that simultaneously has the lowest coefficient of aggregated correlation for each pair in the subset as well as the highest coefficient of aggregated correlation for each variable in the subset with the dependent variable. This is found by first changing the later maximization into a minimization by simply subtracting each correlation coefficient from 1. A minimum for these two criteria can be found by calculating the euclidian distance of each combination from 0 (the lowest possible coefficient possible for either set of coefficients). A penalty can then optionally be added to the distance coefficient - smaller combination lengths have larger distance penalties.
 
-![vis](assets/vis.png)
+![vis](assets/img.png)
