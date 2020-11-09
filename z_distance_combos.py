@@ -1,39 +1,55 @@
 import os
 import sys
+from itertools import combinations
+
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr
-from itertools import combinations
+
+THRESHOLD = 25
 
 
 
-def z_distance(data, combo, dep):
+def z_distance(data, dep, agg='weight'):
     
     # Calculate Pearson correlation coefficient
     corr = lambda x,y: pearsonr(x,y)[0] 
     
+    # Define independent variables
+    combo = np.array(data.drop(dep, axis=1).columns)
+    
     # Find every pairwise correlation within set
     r_indep = np.array([
         corr(data[c[0]], data[c[1]]) for c in list(combinations(combo,2))
-        ])
+    ])
     
     # Find correlation with dependent variable for every variable in set
     r_dep = np.array([
         corr(data[dep], data[var]) for var in combo
-        ])
+    ])
     
     # Apply Fisher's z transformation to all correlations
-    z_dep = np.arctanh(1-np.abs(r_dep))
-    z_indep = np.arctanh(np.abs(r_indep))
+    z_dep = np.arctanh(1-abs(r_dep))
+    z_indep = np.arctanh(abs(r_indep))
     
-    # Calculate weighted average with weights determined by variables contribution to sum
-    corr_in_indeps = np.dot(z_indep, [z/sum(z_indep) for z in z_indep])
-    corr_to_dep = np.dot(z_dep, [z/sum(z_dep) for z in z_dep])
-
+    # Aggregate:
+    if agg == 'sum':
+        corr_to_dep = sum(z_dep)
+        corr_in_indeps = sum(z_indep)
+    if agg == 'mean':
+        corr_to_dep = np.mean(z_dep)
+        corr_in_indeps = np.mean(z_indep)
+    if agg == 'weight':
+        corr_to_dep = np.dot(z_dep, [z/sum(z_dep) for z in z_dep])        
+        corr_in_indeps = np.dot(z_indep, [z/sum(z_indep) for z in z_indep])
+    if agg == 'geom':
+        corr_to_dep = np.prod(z_dep) ** (1/len(z_dep))
+        corr_in_indeps = np.prod(z_indep) ** (1/len(z_indep))
+    
     # Calculate Euclidian distance from the point where:
     # correlation within independent variables is minimized (0)
     # 1 - correlation to dependent variable is minimized (0)
-    distance = np.sqrt(corr_in_indeps**2 + corr_to_dep**2) 
+    distance = np.sqrt((0-corr_in_indeps)**2 + (0-corr_to_dep)**2) 
     
     return distance
 
@@ -43,13 +59,11 @@ def total_combos(n_cols, minimum):
     
     # Define combination function ("n choose k")
     choose = lambda n,k: int(
-        np.math.factorial(n)/(np.math.factorial(k)*np.math.factorial(n-k))
-        )
+        np.math.factorial(n) / (np.math.factorial(k)*np.math.factorial(n-k))
+    )
     
     # Sum up every number of combinations of every length
-    return (
-        sum(choose(n_cols, k) for k in np.arange(minimum, n_cols+1))
-        )
+    return sum(choose(n_cols, k) for k in np.arange(minimum, n_cols+1))
 
 
 
@@ -60,28 +74,32 @@ class VariableChooser:
         self.data = data # Should be pandas DataFrame
         self.dep_var = dep_var
     
-    def select_combo(self, indep_vars, minimum=3, maximum=None, len_penalty=False):
+    def select_combo(self, indep_vars=None, maximum=None, minimum=3, len_penalty=False, agg='weight'):
+        
+        if indep_vars is None:
+            indep_vars = np.array(self.data.drop(self.dep_var, axis=1).columns)
         
         if maximum is None:
-            self.max = len(indep_vars)
-        else:
-            self.max = maximum
+            maximum = len(indep_vars)
+        
+        self.max = maximum
         self.min = minimum
         
-        self.len_penalty = len_penalty 
-        self.indep_vars = indep_vars
-        self.min = minimum  
         distances = {}         
         
         # Create combinations of every length from minimum to number of indep vars
         for length in np.arange(self.min, self.max+1):
-            C = combinations(self.indep_vars, length)
+            C = combinations(indep_vars, length)
 
             # Iterate over every column created
             for combo in list(C):  
                 
-                # Calculate 'z distance'
-                distance = z_distance(self.data, combo, self.dep_var)
+                # Calculate 'z-distance'
+                distance = z_distance(
+                    self.data[[*combo, self.dep_var]], 
+                    dep=self.dep_var, 
+                    agg=agg,
+                )
                 
                 # Add larger penalty to combinations of shorter length
                 if len_penalty:
@@ -89,7 +107,7 @@ class VariableChooser:
                 
                 # Only add combo to memory if smaller than q1 of memory
                 if len(distances) > 3:
-                    if distance < np.percentile(list(distances.values()), 25):                  
+                    if distance < np.percentile(list(distances.values()), THRESHOLD):                  
                         distances[combo] = distance
                 else:
                     distances[combo] = distance
@@ -98,26 +116,22 @@ class VariableChooser:
         self.solutions = sorted(
             distances.items(),
             key = lambda x: x[1],
-            )
+        )
         
         # Return combo with shortest distance
         return self.solutions[0][0]
     
-    def total_combos(self):
-        
-        return total_combos(
-            self.max, 
-            self.min,
-            )  
-    
-    def all_combos(self, indep_vars, minimum=3, maximum=None, len_penalty=True, lim=None):
+    def all_combos(self, indep_vars=None, maximum=None, minimum=3, len_penalty=True, agg='weight', lim=None):
            
+        if indep_vars is None:
+            indep_vars = np.array(self.data.drop(self.dep_var, axis=1).columns)
+
         if maximum is None:
             maximum = len(indep_vars)
+            
+        self.max = maximum
+        self.min = minimum
         
-        # Nothing in this method will be saved to object memory
-        data = self.data.copy(deep=True)
-        dep_var = self.dep_var
         all_distances = {}         
         
         # Create combinations of every length from minimum to number of indep vars
@@ -128,7 +142,11 @@ class VariableChooser:
             for combo in list(C):  
                 
                 # Calculate 'z distance'
-                distance = z_distance(data, combo, dep_var)
+                distance = z_distance(
+                    self.data[[*combo, self.dep_var]], 
+                    dep=self.dep_var, 
+                    agg=agg,
+                )
                 
                 # Add larger penalty to combinations of shorter length
                 if len_penalty:
@@ -138,4 +156,12 @@ class VariableChooser:
                 
         return list(all_distances.items())[:lim]
 
-
+    def n_combos(self):
+        
+        return total_combos(
+            self.max, 
+            self.min,
+        )  
+      
+      
+       
