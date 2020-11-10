@@ -10,7 +10,9 @@ THRESHOLD = 25
 
 
 
-def z_distance(data, dep, agg='weight'):
+def z_distance(data, dep, mean='weighted'):
+    
+    assert mean in ['arithmetic', 'weighted', 'geometric', 'harmonic']
     
     # Calculate Pearson correlation coefficient
     corr = lambda x,y: pearsonr(x,y)[0] 
@@ -33,18 +35,18 @@ def z_distance(data, dep, agg='weight'):
     z_indep = np.arctanh(abs(r_indep))
     
     # Aggregate:
-    if agg == 'sum':
-        corr_to_dep = sum(z_dep)
-        corr_in_indeps = sum(z_indep)
-    if agg == 'mean':
-        corr_to_dep = np.mean(z_dep)
-        corr_in_indeps = np.mean(z_indep)
-    if agg == 'weight':
+    if mean == 'arithmetic':
+        corr_to_dep = sum(z_dep) / len(z_dep)
+        corr_in_indeps = sum(z_indep) / len(z_indep)
+    if mean == 'weighted':
         corr_to_dep = np.dot(z_dep, [z/sum(z_dep) for z in z_dep])        
         corr_in_indeps = np.dot(z_indep, [z/sum(z_indep) for z in z_indep])
-    if agg == 'geom':
+    if mean == 'geometric':
         corr_to_dep = np.prod(z_dep) ** (1/len(z_dep))
         corr_in_indeps = np.prod(z_indep) ** (1/len(z_indep))
+    if mean == 'harmonic':
+        corr_to_dep = len(z_dep) / sum(1/z_dep)
+        corr_in_indeps = len(z_indep) / sum(1/z_indep)
     
     # Calculate Euclidian distance from the point where:
     # correlation within independent variables is minimized (0)
@@ -74,7 +76,7 @@ class VariableChooser:
         self.data = data # Should be pandas DataFrame
         self.dep_var = dep_var
     
-    def select_combo(self, indep_vars=None, maximum=None, minimum=3, len_penalty=False, agg='weight'):
+    def select_combo(self, indep_vars=None, maximum=None, minimum=3, len_penalty=False, agg='weighted'):
         
         if indep_vars is None:
             indep_vars = np.array(self.data.drop(self.dep_var, axis=1).columns)
@@ -98,7 +100,7 @@ class VariableChooser:
                 distance = z_distance(
                     self.data[[*combo, self.dep_var]], 
                     dep=self.dep_var, 
-                    agg=agg,
+                    mean=agg,
                 )
                 
                 # Add larger penalty to combinations of shorter length
@@ -121,7 +123,7 @@ class VariableChooser:
         # Return combo with shortest distance
         return self.solutions[0][0]
     
-    def all_combos(self, indep_vars=None, maximum=None, minimum=3, len_penalty=True, agg='weight', lim=None):
+    def all_combos(self, indep_vars=None, maximum=None, minimum=3, len_penalty=True, agg='weighted', lim=None):
            
         if indep_vars is None:
             indep_vars = np.array(self.data.drop(self.dep_var, axis=1).columns)
@@ -145,7 +147,7 @@ class VariableChooser:
                 distance = z_distance(
                     self.data[[*combo, self.dep_var]], 
                     dep=self.dep_var, 
-                    agg=agg,
+                    mean=agg,
                 )
                 
                 # Add larger penalty to combinations of shorter length
