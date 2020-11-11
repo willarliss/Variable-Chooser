@@ -1,6 +1,6 @@
 # zDistance
 
-This project aims to reduce the risk of multicollinearity in a subset of independent variables for regression analysis. The purpose is to identify a subset of variables from a large list of independent variables that can be used in regression analysis to reduce the chance of multicollinearity causing a problem. Provided is a class that automates this task. The problem - which can be solved with the arithmetic, weighted, geometric, or harmonic mean - is formulated as:
+This project aims to reduce the risk of multicollinearity in a subset of independent variables for regression analysis. The purpose is to identify a subset of variables from a large list of independent variables that can be used in regression analysis to reduce the chance of multicollinearity causing a problem. Provided is a class that automates this task. The problem -- which can be solved with the arithmetic, weighted, geometric, or harmonic mean -- is formulated as:
 
 ![notation](assets/notation.JPG)
 
