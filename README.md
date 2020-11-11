@@ -1,7 +1,27 @@
 # zDistance
-This project aims to reduce the risk of multicollinearity in a subset of independent variables for regression analysis. The purpose is to identify a subset of variables from a large list of independent variables that can be used in regression analysis to reduce the chance of multicollinearity causing a problem. Provided is a class that automates this task. The problem is formulated as:
 
-![formal](assets/formal1.JPG)
+This project aims to reduce the risk of multicollinearity in a subset of independent variables for regression analysis. The purpose is to identify a subset of variables from a large list of independent variables that can be used in regression analysis to reduce the chance of multicollinearity causing a problem. Provided is a class that automates this task. The problem -- which can be solved with the arithmetic, weighted, geometric, or harmonic mean -- is formulated as:
+
+### $$ \underset{X' \; \subseteq \; \textbf{X}}{\mathrm{argmin}} \;\; z_d = \sqrt{ f(X', y)^2 + g(X')^2}$$
+$\newcommand\ddfrac[2]{\dfrac{\displaystyle #1}{\displaystyle #2}}$
+
+#### Arithmetic 
+### $ f(X, y) = \frac{1}{k} \displaystyle\sum_{i=1}^{k} \tanh^{-1}(1-|r_{x_i, y}|) $
+### $ g(X) = \frac{1}{k} \displaystyle\sum_{i,j=1}^{k} \tanh^{-1}|r_{x_{(i)}, x_{(j)}}| $
+
+#### Weighted 
+### $ f(X, y) = \displaystyle\sum_{i=1}^{k} \frac{\tanh^{-1}(1-|r_{x_i, y}|)^2}{\sum_{i=1}^{k} \tanh^{-1}(1-|r_{x_i, y}|)} $
+### $ g(X) = \displaystyle\sum_{i,j=1}^{k} \frac{\tanh^{-1}|r_{x_{(i)}, x_{(j)}}|^2}{\sum_{i,j=1}^{k} \tanh^{-1}|r_{x_{(i)}, x_{(j)}}|} $
+
+#### Geometric
+### $ f(X, y) = \sqrt[k]{ \prod_{i=1}^{k }\tanh^{-1}(1-|r_{x_i, y}|) } $
+### $ g(X) = \sqrt[k]{ \prod_{i,j=1}^{k }\tanh^{-1}|r_{x_{(i)}, x_{(j)}}| } $
+
+
+#### Harmonic
+### $ f(X, y) = \frac{k}{\displaystyle\sum_{i=1}^{k} \frac{1}{\tanh^{-1}(1-|r_{x_i, y}|)} } $
+### $ g(X) = \frac{k}{\displaystyle\sum_{i,j=1}^{k} \frac{1}{\tanh^{-1}|r_{x_{(i)}, x_{(j)}}|} } $
+
 
 The function z_distance accepts a dataframe, a list of independent variables, and a dependent variables. The algorithm first creates subsets from the list of independent variables. The subsets consist of every combination from the list of independent variables, ranging in length from k (the number of independent variabes passed to the class) and the minimum combination length passed to the class. Once combinations are made, pearson correlation coefficients are calculated for every pair of variables within each subset/combination. Fisher's z Transformation is applied to the absolute value of each of these coefficients, they are then aggregated by either taking their weighted mean. Aggregated coefficients for the correlation between each variable in a subset and the dependent variable are calculated in the same way. 
 
