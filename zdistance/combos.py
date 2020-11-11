@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr
 
-from tools import z_distance, n_combos
+from zdistance.tools import z_distance, n_combos
 
 
 
@@ -26,6 +26,7 @@ class VariableChooser:
         
         if maximum is None:
             maximum = len(indep_vars)
+        assert maximum <= len(indep_vars)
         
         self.max = maximum
         self.min = minimum

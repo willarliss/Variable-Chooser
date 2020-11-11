@@ -1,4 +1,4 @@
-# z-Distance
+# zDistance
 This project aims to reduce the risk of multicollinearity in a subset of independent variables for regression analysis. The purpose is to identify a subset of variables from a large list of independent variables that can be used in regression analysis to reduce the chance of multicollinearity causing a problem. Provided is a class that automates this task. The problem is formulated as:
 
 ![formal](assets/formal1.JPG)
